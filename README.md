@@ -13,39 +13,45 @@ clauses. PolicyPal lets someone type "Is dental treatment covered?" and
 get a direct, sourced answer instead of digging through pages of text.
 
 ## Architecture
+
+```
 policy documents (.pdf/.txt)
-│
-▼
+        |
+        v
 chunking (RecursiveCharacterTextSplitter)
-│
-▼
+        |
+        v
 embeddings (sentence-transformers, HuggingFace)
-│
-▼
-FAISS vector index ──▶ retriever + relevance check (similarity threshold)
-│ │
-│ ▼
-│ prompt + retrieved clauses
-│ │
-│ ▼
-└──────────────▶ local LLM (flan-t5-large) via LangChain
-│
-▼
-plain-English answer + source clause
-(or an honest refusal if nothing relevant was found)
+        |
+        v
+FAISS vector index --> retriever + relevance check (similarity threshold)
+        |                         |
+        |                         v
+        |                 prompt + retrieved clauses
+        |                         |
+        |                         v
+        +----------------> local LLM (flan-t5-large) via LangChain
+                                  |
+                                  v
+                    plain-English answer + source clause
+                    (or an honest refusal if nothing relevant was found)
+```
 
 ## Project structure
+
+```
 rag_chatbot/
-├── app_streamlit.py # "PolicyPal" chat UI
-├── app_api.py # FastAPI service (POST /query)
-├── src/
-│ ├── config.py # Models, chunk size, prompt persona, similarity threshold
-│ ├── ingest.py # Load → chunk → embed → build/save FAISS index
-│ └── rag_chain.py # Retriever + relevance check + prompt + LLM chain
-├── data/sample_docs/
-│ └── sample_policy.txt # Sample health insurance policy
-├── Dockerfile
-└── requirements.txt
+|-- app_streamlit.py     # "PolicyPal" chat UI
+|-- app_api.py            # FastAPI service (POST /query)
+|-- src/
+|   |-- config.py          # Models, chunk size, prompt persona, similarity threshold
+|   |-- ingest.py           # Load -> chunk -> embed -> build/save FAISS index
+|   +-- rag_chain.py        # Retriever + relevance check + prompt + LLM chain
+|-- data/sample_docs/
+|   +-- sample_policy.txt   # Sample health insurance policy
+|-- Dockerfile
++-- requirements.txt
+```
 
 ## Setup
 
@@ -149,9 +155,3 @@ without any other architecture changes.
 | Streamlit | `app_streamlit.py` |
 | Docker | `Dockerfile` |
 
-**Suggested resume bullet:**
-> Built PolicyPal, a Retrieval-Augmented Generation (RAG) assistant that
-> answers plain-English questions about insurance policy documents using
-> LangChain, FAISS, and open-weight HuggingFace LLMs; added a similarity-
-> threshold grounding check to reduce hallucinated answers, and deployed
-> via a Streamlit UI and FastAPI service, containerized with Docker.
